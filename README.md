@@ -121,8 +121,3 @@ This project demonstrates:
 
 ---
 
-## 📜 License
-
-MIT License
-
----
