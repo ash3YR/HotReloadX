@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="HotReloadX.CLI/HotReloadX.CLI.csproj" />
+  <Project Path="HotReloadX.Core/HotReloadX.Core.csproj" />
+</Solution>
