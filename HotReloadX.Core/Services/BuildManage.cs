@@ -7,7 +7,7 @@ public class BuildManager
 {
     public bool Execute(string command)
     {
-        Console.WriteLine("🔨 Building project...\n");
+        ConsoleHelper.Info("🔨 Building project...\n");
 
         var parts = Split(command);
 
@@ -30,7 +30,7 @@ public class BuildManager
 
         process.ErrorDataReceived += (_, e) =>
         {
-            if (e.Data != null) Console.WriteLine($"❌ {e.Data}");
+            if (e.Data != null) ConsoleHelper.Error(e.Data);
         };
 
         process.Start();
@@ -41,11 +41,11 @@ public class BuildManager
 
         if (process.ExitCode == 0)
         {
-            Console.WriteLine("✔ Build succeeded\n");
+            ConsoleHelper.Success("✔ Build succeeded\n");
             return true;
         }
 
-        Console.WriteLine("❌ Build failed\n");
+        ConsoleHelper.Error("❌ Build failed\n");
         return false;
     }
 

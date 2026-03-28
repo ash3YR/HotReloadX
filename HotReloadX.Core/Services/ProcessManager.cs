@@ -12,7 +12,7 @@ public class ProcessManager
     {
         Stop();
 
-        Console.WriteLine("🚀 Starting server...\n");
+        ConsoleHelper.Success("🚀 Starting server...\n");
 
         var parts = Split(command);
 
@@ -35,7 +35,7 @@ public class ProcessManager
 
         _process.ErrorDataReceived += (_, e) =>
         {
-            if (e.Data != null) Console.WriteLine($"❌ {e.Data}");
+            if (e.Data != null) ConsoleHelper.Error(e.Data);
         };
 
         _process.Start();
@@ -49,32 +49,23 @@ public class ProcessManager
         {
             if (_process != null && !_process.HasExited)
             {
-                Console.WriteLine("🛑 Stopping previous server...");
+                ConsoleHelper.Warning("🛑 Stopping previous server...");
 
-                KillProcessTree(_process.Id);
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "taskkill",
+                    Arguments = $"/PID {_process.Id} /T /F",
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
 
-                _process.WaitForExit();
-                Thread.Sleep(700);
+                using var proc = Process.Start(psi);
+                proc.WaitForExit();
+
+                Thread.Sleep(500);
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error stopping process: {ex.Message}");
-        }
-    }
-
-    private void KillProcessTree(int pid)
-    {
-        var psi = new ProcessStartInfo
-        {
-            FileName = "taskkill",
-            Arguments = $"/PID {pid} /T /F",
-            CreateNoWindow = true,
-            UseShellExecute = false
-        };
-
-        using var proc = Process.Start(psi);
-        proc.WaitForExit();
+        catch { }
     }
 
     private (string, string) Split(string cmd)

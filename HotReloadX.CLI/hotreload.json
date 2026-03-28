@@ -1,0 +1,15 @@
+{
+  "root": "../TestServer",
+  "build": "dotnet build ../TestServer",
+  "run": "dotnet run --project ../TestServer",
+  "ignore": [
+    "bin/",
+    "obj/",
+    ".git/",
+    "node_modules/",
+    "*.dll",
+    "*.exe",
+    "*.pdb",
+    "*.log"
+  ]
+}

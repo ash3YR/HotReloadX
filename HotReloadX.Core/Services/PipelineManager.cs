@@ -10,44 +10,38 @@ public class PipelineManager
     private readonly ProcessManager _process;
 
     private CancellationTokenSource? _cts;
-    private readonly object _lock = new();
 
-    public PipelineManager(BuildManager b, ProcessManager p)
+    public PipelineManager(BuildManager build, ProcessManager process)
     {
-        _build = b;
-        _process = p;
+        _build = build;
+        _process = process;
     }
 
     public void Trigger(string buildCmd, string runCmd)
     {
-        lock (_lock)
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource();
+
+        var token = _cts.Token;
+
+        Task.Run(async () =>
         {
-            _cts?.Cancel();
-            _cts = new CancellationTokenSource();
-
-            var token = _cts.Token;
-
-            Task.Run(async () =>
+            try
             {
-                try
-                {
-                    Console.WriteLine("\n🔥 Change detected → Reloading...\n");
+                _process.Stop();
 
-                    _process.Stop();
+                await Task.Delay(500, token);
 
-                    await Task.Delay(700, token);
+                if (!_build.Execute(buildCmd)) return;
 
-                    if (!_build.Execute(buildCmd)) return;
+                if (token.IsCancellationRequested) return;
 
-                    if (token.IsCancellationRequested) return;
-
-                    _process.Start(runCmd);
-                }
-                catch (OperationCanceledException)
-                {
-                    Console.WriteLine("⚠️ Build cancelled");
-                }
-            }, token);
-        }
+                _process.Start(runCmd);
+            }
+            catch (OperationCanceledException)
+            {
+                ConsoleHelper.Warning("⚠️ Build cancelled");
+            }
+        }, token);
     }
 }

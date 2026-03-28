@@ -21,48 +21,32 @@ public class FileWatcherService
     {
         var fullPath = Path.GetFullPath(_rootPath);
 
-        Console.WriteLine($"📁 Watching: {fullPath}");
+        ConsoleHelper.Info($"📁 Watching: {fullPath}");
 
         _watcher = new FileSystemWatcher(fullPath)
         {
             IncludeSubdirectories = true,
             EnableRaisingEvents = true,
-            NotifyFilter = NotifyFilters.FileName
-                         | NotifyFilters.LastWrite
-                         | NotifyFilters.DirectoryName
+            Filter = "*.cs"
         };
 
-        _watcher.Changed += OnChange;
-        _watcher.Created += OnChange;
-        _watcher.Deleted += OnChange;
-        _watcher.Renamed += OnRename;
+        _watcher.Changed += Handle;
+        _watcher.Created += Handle;
+        _watcher.Deleted += Handle;
+        _watcher.Renamed += Handle;
     }
 
-    private void OnChange(object sender, FileSystemEventArgs e)
+    private void Handle(object sender, FileSystemEventArgs e)
     {
-        if (IsIgnored(e.FullPath)) return;
+        var path = e.FullPath.Replace("\\", "/").ToLower();
+
+        if (path.Contains("/bin/") || path.Contains("/obj/"))
+            return;
 
         _debouncer.Execute(() =>
         {
+            ConsoleHelper.Info("🔥 Change detected → Reloading...");
             OnFilesChanged?.Invoke();
         });
-    }
-
-    private void OnRename(object sender, RenamedEventArgs e)
-    {
-        if (IsIgnored(e.FullPath)) return;
-
-        _debouncer.Execute(() =>
-        {
-            OnFilesChanged?.Invoke();
-        });
-    }
-
-    private bool IsIgnored(string path)
-    {
-        return path.Contains("bin") ||
-               path.Contains("obj") ||
-               path.Contains(".git") ||
-               path.Contains("node_modules");
     }
 }

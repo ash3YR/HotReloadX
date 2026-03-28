@@ -16,13 +16,14 @@ class Program
             return;
         }
 
-        Console.WriteLine("🚀 HotReloadX Starting...\n");
+        ConsoleHelper.Info("🚀 HotReloadX Starting...\n");
 
         var watcher = new FileWatcherService(options.RootPath);
-        var process = new ProcessManager();
-        var build = new BuildManager();
-        var pipeline = new PipelineManager(build, process);
+        var processManager = new ProcessManager();
+        var buildManager = new BuildManager();
+        var pipeline = new PipelineManager(buildManager, processManager);
 
+        // First run
         pipeline.Trigger(options.BuildCommand, options.RunCommand);
 
         watcher.OnFilesChanged += () =>
@@ -32,7 +33,7 @@ class Program
 
         watcher.Start();
 
-        Console.WriteLine("👀 Watching... Press Ctrl+C to exit.");
+        ConsoleHelper.Info("👀 Watching for changes...\n");
 
         while (true)
         {
