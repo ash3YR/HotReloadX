@@ -19,17 +19,21 @@ class Program
         Console.WriteLine("🚀 HotReloadX Starting...\n");
 
         var watcher = new FileWatcherService(options.RootPath);
+        var process = new ProcessManager();
+        var build = new BuildManager();
+        var pipeline = new PipelineManager(build, process);
+
+        pipeline.Trigger(options.BuildCommand, options.RunCommand);
 
         watcher.OnFilesChanged += () =>
         {
-            Console.WriteLine("🔥 File change pipeline triggered!");
+            pipeline.Trigger(options.BuildCommand, options.RunCommand);
         };
 
         watcher.Start();
 
-        Console.WriteLine("👀 Watching for changes... Press Ctrl+C to exit.");
+        Console.WriteLine("👀 Watching... Press Ctrl+C to exit.");
 
-        // Keep app alive
         while (true)
         {
             Thread.Sleep(1000);

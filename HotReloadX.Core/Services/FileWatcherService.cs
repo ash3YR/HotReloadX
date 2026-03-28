@@ -27,8 +27,8 @@ public class FileWatcherService
         {
             IncludeSubdirectories = true,
             EnableRaisingEvents = true,
-            NotifyFilter = NotifyFilters.FileName 
-                         | NotifyFilters.LastWrite 
+            NotifyFilter = NotifyFilters.FileName
+                         | NotifyFilters.LastWrite
                          | NotifyFilters.DirectoryName
         };
 
@@ -40,26 +40,20 @@ public class FileWatcherService
 
     private void OnChange(object sender, FileSystemEventArgs e)
     {
-        Console.WriteLine($"[RAW EVENT] {e.ChangeType}: {e.FullPath}");
-
         if (IsIgnored(e.FullPath)) return;
 
         _debouncer.Execute(() =>
         {
-            Console.WriteLine("⚡ Debounced event triggered");
             OnFilesChanged?.Invoke();
         });
     }
 
     private void OnRename(object sender, RenamedEventArgs e)
     {
-        Console.WriteLine($"[RAW EVENT] Renamed: {e.OldFullPath} -> {e.FullPath}");
-
         if (IsIgnored(e.FullPath)) return;
 
         _debouncer.Execute(() =>
         {
-            Console.WriteLine("⚡ Debounced event triggered");
             OnFilesChanged?.Invoke();
         });
     }

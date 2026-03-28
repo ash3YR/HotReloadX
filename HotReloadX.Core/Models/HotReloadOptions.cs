@@ -2,7 +2,7 @@ namespace HotReloadX.Core.Models;
 
 public class HotReloadOptions
 {
-    public string RootPath { get; set; } = string.Empty;
-    public string BuildCommand { get; set; } = string.Empty;
-    public string RunCommand { get; set; } = string.Empty;
+    public string RootPath { get; set; } = "";
+    public string BuildCommand { get; set; } = "";
+    public string RunCommand { get; set; } = "";
 }
